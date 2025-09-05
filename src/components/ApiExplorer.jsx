@@ -27,7 +27,20 @@ const ApiExplorer = () => {
 
   const generateUrl = () => {
     if (apiType === "export") {
-      const params = new URLSearchParams(apiParams);
+      const params = new URLSearchParams();
+      
+      // Add all parameters except years
+      Object.keys(apiParams).forEach(key => {
+        if (key !== 'years') {
+          params.append(key, apiParams[key]);
+        }
+      });
+      
+      // Only add years parameter if format is not geojson or shapefile
+      if (apiParams.format !== 'geojson' && apiParams.format !== 'shapefile') {
+        params.append('years', apiParams.years);
+      }
+      
       const url = `${exportBaseUrl}?${params.toString()}`;
       setGeneratedUrl(url);
       setDecodedUrl(url);
@@ -167,6 +180,14 @@ print(race_summary)`;
           <h2>
             Export API Parameters 
           </h2>
+          <div className="instructions">
+            <h4>How to use:</h4>
+            <ol>
+              <li>Fill in the parameters below</li>
+              <li>Click "Generate URL"</li>
+              <li>Copy the URL and paste it directly into your browser to download the data</li>
+            </ol>
+          </div>
           <div className="params-grid">
             <div className="param-group">
               <label htmlFor="token">Token:</label>
@@ -237,23 +258,28 @@ print(race_summary)`;
                 {apiParams.database === "towndata" && (
                   <option value="geojson">GeoJSON</option>
                 )}
+                {apiParams.database === "towndata" && (
+                  <option value="shapefile">Shapefile</option>
+                )}
               </select>
             </div>
 
-            <div className="param-group">
-              <label htmlFor="years">Years:</label>
-              <input
-                id="years"
-                type="text"
-                value={apiParams.years}
-                onChange={(e) => handleParamChange("years", e.target.value)}
-                placeholder="2019-23,2018-22,2017-21 or 2024"
-              />
-              <small>
-                Use comma-separated values for multiple years or year ranges
-                (applies to time-series data)
-              </small>
-            </div>
+                         {apiParams.format !== 'geojson' && apiParams.format !== 'shapefile' && (
+               <div className="param-group">
+                 <label htmlFor="years">Years:</label>
+                 <input
+                   id="years"
+                   type="text"
+                   value={apiParams.years}
+                   onChange={(e) => handleParamChange("years", e.target.value)}
+                   placeholder="2019-23,2018-22,2017-21 or 2024"
+                 />
+                 <small>
+                   Use comma-separated values for multiple years or year ranges
+                   (applies to time-series data)
+                 </small>
+               </div>
+             )}
           </div>
 
           <div className="action-buttons">
@@ -283,6 +309,14 @@ print(race_summary)`;
       ) : (
         <div className="explorer-section">
           <h2>Query API Parameters with Custom SQL queries</h2>
+          <div className="instructions">
+            <h4>How to use:</h4>
+            <ol>
+              <li>Enter your SQL query below</li>
+              <li>Click "Generate URL"</li>
+              <li>Copy the URL and use it in your R or Python code (see R Examples and Python Examples tabs)</li>
+            </ol>
+          </div>
           <div className="params-grid">
             <div className="param-group">
               <label htmlFor="query-token">Token:</label>
@@ -357,47 +391,241 @@ print(race_summary)`;
         <h2>API Documentation</h2>
         <div className="api-docs">
           
-          {/* Export API Section */}
-          <div className="doc-section">
-            <h3>Export API</h3>
-            <p className="section-description">
-              Download data directly from DataCommon tables in various formats.
-              Some tables are only available in certain formats. Please refer datasets on <a href="https://datacommon.mapc.org/browser">DataCommon website</a> for more information.
-            </p>
-            
-            <div className="feature-grid">
-              <div className="feature-card">
-                <h4>Supported Databases</h4>
-                <ul>
-                  <li><strong>ds</strong></li>
-                  <li><strong>gisdata</strong></li>
-                  <li><strong>towndata</strong></li>
-                </ul>
-              </div>
+          {apiType === "export" ? (
+            /* Export API Section */
+            <div className="doc-section">
+              <h3>Export API</h3>
+              <p className="section-description">
+                The Export API provides programmatic access to DataCommon datasets in various formats. 
+                This endpoint allows direct download of data from specified tables with filtering by year.
+              </p>
               
-              <div className="feature-card">
-                <h4>Year Formats</h4>
-                <ul>
-                  <li><strong>Single year:</strong> 2024</li>
-                  <li><strong>Multiple years:</strong> 2024,2016,2017,2018</li>
-                  <li><strong>Year ranges:</strong> 2019-23,2018-22,2017-21</li>
-                </ul>
-                <small className="note">
-                  ⚠️ Years parameter applies to time-series data (housing, demographics etc.)
-                </small>
+              <div className="api-endpoint">
+                <h4>Endpoint</h4>
+                <code>GET https://datacommon.mapc.org/api/export</code>
               </div>
-              
-              <div className="feature-card">
-                <h4>Available Response Formats</h4>
-                <ul>
-                  <li><strong>CSV:</strong> Comma-separated values</li>
-                  <li><strong>JSON:</strong> JavaScript Object Notation</li>
-                  <li><strong>GeoJSON:</strong> Geographic data format(not for all tables)</li>
-                  <li><strong>Shapefile:</strong> Shapefile format(not for all tables)</li>
-                </ul>
+
+              <div className="parameters-section">
+                <h4>Parameters</h4>
+                
+                <div className="parameter-table">
+                  <div className="param-row header">
+                    <div className="param-name">Parameter</div>
+                    <div className="param-type">Type</div>
+                    <div className="param-required">Required</div>
+                    <div className="param-description">Description</div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">token</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">API access token. Use "datacommon" for public access.</div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">database</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">
+                      Target database identifier. Valid values:
+                      <ul>
+                        <li><code>ds</code> - Main dataset database containing tabular data</li>
+                        <li><code>gisdata</code> - Geographic/spatial data repository</li>
+                        <li><code>towndata</code> - Town-specific datasets and boundaries</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">schema</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">
+                      Database schema name. Valid values:
+                      <ul>
+                        <li><code>tabular</code> - Standard tabular data schema</li>
+                        <li><code>mapc</code> - MAPC-specific data schema</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">table</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">
+                      Target table name  
+                      <br />
+                      <strong>Example:</strong> <code>hous_building_permits_m</code>
+                    </div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">format</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">
+                      Output data format. Valid values:
+                      <ul>
+                        <li><code>csv</code> - Comma-separated values (default for tabular data)</li>
+                        <li><code>json</code> - JavaScript Object Notation</li>
+                        <li><code>geojson</code> - Geographic data format (available for spatial tables)</li>
+                        <li><code>shapefile</code> - Shapefile format (available for spatial tables)</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">years</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Optional (depends on the format)</div>
+                    <div className="param-description">
+                      Filter for time-series data. The format depends on how years are stored in the database. If you want to query for multiple years, you can use comma-separated values.
+                      <ul>
+                        <li><strong>Single year:</strong> <code>2024</code> (when data is stored as individual years)</li>
+                        <li><strong>Year range:</strong> <code>2019-23</code> (when data is stored as 5-year periods)</li>
+                        <li><strong>Multiple years:</strong> <code>2024,2023,2022</code> (comma-separated individual years)</li>or <code>2019-23,2018-22,2017-21</code> (comma-separated year ranges)
+                      </ul>
+                      <strong>Note:</strong> Check the DataCommon browser to see how years are stored for each specific table. 
+                      Some tables use individual years (2023, 2024) while others use 5-year periods (2019-23, 2014-18).
+                      <br/><strong>Important:</strong> This parameter is not applicable for GeoJSON and Shapefile formats.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="response-section">
+                <h4>Response</h4>
+                <p>
+                  The API returns data in the requested format. For CSV format, the response includes headers in the first row. 
+                  For JSON format, data is returned as an array of objects. For GeoJSON format, spatial data is returned 
+                  following the GeoJSON specification.
+                </p>
+              </div>
+
+              <div className="example-section">
+                <h4>Example Request</h4>
+                <pre className="code-example">
+                  <code>
+{`GET https://datacommon.mapc.org/api/export?token=datacommon&database=ds&schema=tabular&table=hous_building_permits_m&format=csv&years=2024`}
+                  </code>
+                </pre>
               </div>
             </div>
-          </div>
+          ) : (
+            /* Query API Section */
+            <div className="doc-section">
+              <h3>Query API</h3>
+              <p className="section-description">
+                The Query API provides programmatic access to DataCommon datasets through custom SQL queries. 
+                This endpoint allows you to execute SQL queries against specified databases and retrieve filtered or aggregated data.
+              </p>
+              
+              <div className="api-endpoint">
+                <h4>Endpoint</h4>
+                <code>GET https://datacommon.mapc.org/api/</code>
+              </div>
+
+              <div className="parameters-section">
+                <h4>Parameters</h4>
+                
+                <div className="parameter-table">
+                  <div className="param-row header">
+                    <div className="param-name">Parameter</div>
+                    <div className="param-type">Type</div>
+                    <div className="param-required">Required</div>
+                    <div className="param-description">Description</div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">token</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">API access token. Use "datacommon" for public access.</div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">database</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">
+                      Target database identifier. Valid values:
+                      <ul>
+                        <li><code>ds</code> - Main dataset database containing tabular data</li>
+                        <li><code>gisdata</code> - Geographic/spatial data repository</li>
+                        <li><code>towndata</code> - Town-specific datasets and boundaries</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="param-row">
+                    <div className="param-name">query</div>
+                    <div className="param-type">string</div>
+                    <div className="param-required">Yes</div>
+                    <div className="param-description">
+                      SQL query to execute against the specified database. 
+                      <br/>
+                      <strong>Important:</strong> Always include schema in table references (e.g., <code>tabular.table_name</code>).
+                      <br/>
+                      <strong>Example:</strong> <code>SELECT * FROM tabular.hous_building_permits_m WHERE cal_year = '2024'</code>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="response-section">
+                <h4>Response</h4>
+                <p>
+                  The API returns a JSON response containing the query results and metadata:
+                </p>
+                <ul>
+                  <li><strong>rows:</strong> Array of data objects representing the query results</li>
+                  <li><strong>fields:</strong> Array of field metadata including column names and types</li>
+                </ul>
+              </div>
+
+              <div className="example-section">
+                <h4>Example Request</h4>
+                <pre className="code-example">
+                  <code>
+{`GET https://datacommon.mapc.org/api/?token=datacommon&database=ds&query=SELECT%20muni%2C%20park_dem%2C%20util_rate%20FROM%20tabular.trans_perfect_fit_parking%20WHERE%20muni%20LIKE%20%27Boston%27`}
+                  </code>
+                </pre>
+              </div>
+
+              <div className="example-section">
+                <h4>Example Response</h4>
+                <pre className="code-example">
+                  <code>
+{`{
+  "rows": [
+    {
+      "muni": "Boston",
+      "park_dem": "0.85",
+      "util_rate": "0.92"
+    }
+  ],
+  "fields": [
+    {
+      "name": "muni",
+      "type": "text"
+    },
+    {
+      "name": "park_dem", 
+      "type": "numeric"
+    },
+    {
+      "name": "util_rate",
+      "type": "numeric"
+    }
+  ]
+}`}
+                  </code>
+                </pre>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

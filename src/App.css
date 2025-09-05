@@ -176,6 +176,161 @@ body {
   overflow-x: hidden;
 }
 
+.instructions {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.instructions h4 {
+  margin: 0 0 0.5rem 0;
+  color: #495057;
+  font-size: 1rem;
+}
+
+.instructions ol {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.instructions li {
+  margin-bottom: 0.25rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* API Documentation styles */
+.api-endpoint {
+  background: #f8f9fa;
+  border-left: 4px solid #3b82f6;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.api-endpoint h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.api-endpoint code {
+  background: #e5e7eb;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.parameters-section {
+  margin: 2rem 0;
+}
+
+.parameters-section h4 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.parameter-table {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.param-row {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 0.6fr 2fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.param-row:last-child {
+  border-bottom: none;
+}
+
+.param-row.header {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #d1d5db;
+}
+
+.param-name {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.param-type {
+  color: #7c3aed;
+  font-size: 0.9rem;
+}
+
+.param-required {
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.param-description {
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.param-description ul {
+  margin: 0.5rem 0;
+  padding-left: 1.2rem;
+}
+
+.param-description li {
+  margin-bottom: 0.25rem;
+}
+
+.param-description code {
+  background: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85rem;
+  color: #1f2937;
+}
+
+.response-section, .example-section {
+  margin: 2rem 0;
+}
+
+.response-section h4, .example-section h4 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.response-section p {
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.code-example {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.code-example code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
 .explorer-section {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 16px;
